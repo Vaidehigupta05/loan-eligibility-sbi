@@ -3,102 +3,97 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Page Config
-st.set_page_config(page_title="SBI Loan Eligibility Checker", page_icon="🏦", layout="wide")
+st.set_page_config(page_title="SBI Loan Dashboard", layout="wide")
 
-# Custom Styling
+# Custom CSS (Dark Dashboard Style)
 st.markdown("""
-    <style>
-        .main {
-            background-color: #f5f7fa;
-        }
-        .stButton>button {
-            background-color: #1f77b4;
-            color: white;
-            font-size: 16px;
-            border-radius: 8px;
-        }
-        .stSidebar {
-            background-color: #e6f0ff;
-        }
-    </style>
+<style>
+body {
+    background-color: #0e1117;
+}
+h1, h2, h3, h4 {
+    color: #ffffff;
+}
+.metric-box {
+    background-color: #161b22;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+</style>
 """, unsafe_allow_html=True)
 
 # Header
-st.title("🏦 Loan Eligibility Checker – SBI")
-st.markdown("### Smart, Fast & Reliable Loan Eligibility Assessment")
+st.markdown("<h1 style='text-align:center; color:#ff9933;'>STATE BANK OF INDIA</h1>", unsafe_allow_html=True)
+st.markdown("<h2 style='text-align:center;'>🏦 Loan Eligibility Dashboard</h2>", unsafe_allow_html=True)
+st.write("")
 
-# Layout: 2 Columns
-col1, col2 = st.columns([1, 2])
+# KPI Section
+col1, col2, col3 = st.columns(3)
 
-# Sidebar Inputs
-st.sidebar.header("Enter Your Details")
+with col1:
+    st.metric("Applications Today", "1,245", "+5%")
 
-age = st.sidebar.number_input("Age", min_value=18, max_value=65, value=25)
-income = st.sidebar.number_input("Monthly Income (₹)", min_value=0, value=30000)
-loan_amount = st.sidebar.number_input("Requested Loan Amount (₹)", min_value=0, value=500000)
-credit_score = st.sidebar.slider("Credit Score", 300, 900, 700)
-employment = st.sidebar.selectbox("Employment Type", ["Salaried", "Self-Employed"])
+with col2:
+    st.metric("Approved Loans", "320", "+2%")
+
+with col3:
+    st.metric("Rejected Loans", "85", "-1%")
+
+st.markdown("---")
+
+# Input Section
+st.subheader("🔍 Check Loan Eligibility")
+
+col1, col2 = st.columns(2)
+
+with col1:
+    income = st.number_input("Monthly Income (₹)", value=30000)
+    loan_amount = st.number_input("Loan Amount (₹)", value=500000)
+
+with col2:
+    credit_score = st.slider("Credit Score", 300, 900, 700)
+    age = st.slider("Age", 18, 65, 25)
 
 # Eligibility Logic
-def check_eligibility(age, income, loan_amount, credit_score, employment):
-    
+def check_eligibility(income, loan_amount, credit_score, age):
     if age < 21:
-        return "Not Eligible", "Minimum age is 21"
-    
+        return "Not Eligible"
     if credit_score < 650:
-        return "Not Eligible", "Low credit score"
-    
+        return "Not Eligible"
     if income < 25000:
-        return "Not Eligible", "Income too low"
-    
+        return "Not Eligible"
     if loan_amount > income * 20:
-        return "Not Eligible", "Loan too high"
-    
-    if employment == "Self-Employed" and income < 30000:
-        return "Not Eligible", "Higher income required"
-    
-    return "Eligible", "You meet all criteria"
+        return "Not Eligible"
+    return "Eligible"
 
-# Button Action
-if st.sidebar.button("Check Eligibility"):
-    status, message = check_eligibility(age, income, loan_amount, credit_score, employment)
+# Button
+if st.button("Check Eligibility"):
+    result = check_eligibility(income, loan_amount, credit_score, age)
 
-    with col1:
-        st.subheader("Result")
-        if status == "Eligible":
-            st.success(f"✅ {status}\n\n{message}")
-        else:
-            st.error(f"❌ {status}\n\n{message}")
+    if result == "Eligible":
+        st.success("✅ You are eligible for the loan")
+    else:
+        st.error("❌ You are not eligible")
 
-    # Graph Section
-    with col2:
-        st.subheader("📊 Loan vs Eligibility Analysis")
-
-        max_loan_allowed = income * 20
-
-        data = pd.DataFrame({
-            "Category": ["Your Loan", "Max Eligible Loan"],
-            "Amount": [loan_amount, max_loan_allowed]
-        })
-
-        fig, ax = plt.subplots()
-        ax.bar(data["Category"], data["Amount"])
-        ax.set_ylabel("Amount (₹)")
-        ax.set_title("Loan Comparison")
-
-        st.pyplot(fig)
-
-# Info Section
 st.markdown("---")
-st.header("📌 Eligibility Criteria")
 
-st.info("""
-✔ Minimum Age: 21 years  
-✔ Minimum Income: ₹25,000/month  
-✔ Minimum Credit Score: 650  
-✔ Loan Amount ≤ 20 × Monthly Income  
-""")
+# Graph Section
+st.subheader("📊 Loan Trend Analysis")
+
+data = pd.DataFrame({
+    "Days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "Applications": [50, 70, 65, 80, 90, 120, 100]
+})
+
+fig, ax = plt.subplots()
+ax.plot(data["Days"], data["Applications"], marker='o')
+ax.set_xlabel("Days")
+ax.set_ylabel("Applications")
+ax.set_title("Weekly Loan Applications")
+
+st.pyplot(fig)
 
 # Footer
 st.markdown("---")
-st.caption("Developed as a prototype for SBI Loan Eligibility System")
+st.caption("© 2026 SBI Loan Eligibility Prototype | Built with Streamlit")
